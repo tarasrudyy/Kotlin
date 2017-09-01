@@ -1,11 +1,6 @@
 package verticles
 
-import com.github.kittinunf.fuel.httpGet
-import com.github.salomonbrys.kotson.double
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.obj
-import com.github.salomonbrys.kotson.string
-import com.google.gson.JsonParser
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.ext.web.Router
@@ -13,17 +8,12 @@ import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.templ.ThymeleafTemplateEngine
 import nl.komponents.kovenant.functional.bind
 import nl.komponents.kovenant.functional.map
-import nl.komponents.kovenant.task
 import org.slf4j.LoggerFactory
 import services.SunService
 import services.WeatherService
 import uy.klutter.vertx.VertxInit
-import java.nio.charset.Charset
-import java.text.SimpleDateFormat
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 class MainVerticle : AbstractVerticle() {
 
@@ -47,7 +37,9 @@ class MainVerticle : AbstractVerticle() {
         val staticHandler = StaticHandler.create().setWebRoot("public").setCachingEnabled(false)
         router.route("/public/*").handler(staticHandler)
 
-        router.get("/home").handler { ctx ->
+        val jsonMapper = jacksonObjectMapper()
+
+        router.get("/api/data").handler { ctx ->
             val lat = -33.8830
             val lon = 151.2167
 
@@ -58,21 +50,22 @@ class MainVerticle : AbstractVerticle() {
                 temperatureP.map { temp -> SunWeatherInfo(sunInfo, temp) }
             }
 
-            sunWeatherInfoP.success { (sunInfo, temperature) ->
-                ctx.put("sunrise", sunInfo.sunrise)
-                ctx.put("sunset", sunInfo.sunset)
-                ctx.put("temperature", temperature)
-                ctx.put("time", ZonedDateTime.now().format(formatter))
-
-                templateEngine.render(ctx, "public/templates/index.html", { buf ->
-                    if (buf.failed()) {
-                        logger.error("Template rendering failed", buf.cause())
-                    } else {
-                        val response = ctx.response()
-                        response.end(buf.result())
-                    }
-                })
+            sunWeatherInfoP.success { info ->
+                val json = jsonMapper.writeValueAsString(info)
+                val response = ctx.response()
+                response.end(json)
             }
+        }
+
+        router.get("/home").handler { ctx ->
+            templateEngine.render(ctx, "public/templates/index.html", { buf ->
+                if (buf.failed()) {
+                    logger.error("Template rendering failed", buf.cause())
+                } else {
+                    val response = ctx.response()
+                    response.end(buf.result())
+                }
+            })
         }
 
         server.requestHandler { router.accept(it) }.listen(8080, { handler ->
