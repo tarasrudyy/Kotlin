@@ -9,6 +9,8 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.*
 import io.vertx.ext.web.sstore.LocalSessionStore
 import io.vertx.ext.web.templ.ThymeleafTemplateEngine
+import models.SunInfo
+import models.SunWeatherInfo
 import nl.komponents.kovenant.functional.bind
 import nl.komponents.kovenant.functional.map
 import org.slf4j.LoggerFactory
@@ -17,20 +19,11 @@ import services.MigrationService
 import services.SunService
 import services.WeatherService
 import uy.klutter.vertx.VertxInit
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 class MainVerticle : AbstractVerticle() {
 
-    companion object {
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.of("Australia/Sydney"))
-    }
-
     data class ServerConfig(val port: Int, val caching: Boolean)
     data class DataSourceConfig(val user: String, val password: String, val jdbcUrl: String)
-
-    data class SunInfo(val sunrise: String, val sunset: String)
-    data class SunWeatherInfo(val sunInfo: SunInfo, val temperature: Double)
 
     private val weatherService = WeatherService()
     private val sunService = SunService()
@@ -103,11 +96,11 @@ class MainVerticle : AbstractVerticle() {
             val sunInfoP = sunService.getSunInfo(lat, lon)
             val temperatureP = weatherService.getTemperature(lat, lon)
 
-            val sunWeatherInfoP = sunInfoP.bind { sunInfo ->
+            val sunWeatherInfoP = sunInfoP.bind { sunInfo: SunInfo ->
                 temperatureP.map { temp -> SunWeatherInfo(sunInfo, temp) }
             }
 
-            sunWeatherInfoP.success { info ->
+            sunWeatherInfoP.success { info: SunWeatherInfo ->
                 val json = jsonMapper.writeValueAsString(info)
                 val response = ctx.response()
                 response.end(json)

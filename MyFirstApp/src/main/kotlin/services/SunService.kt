@@ -5,15 +5,21 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.obj
 import com.github.salomonbrys.kotson.string
 import com.google.gson.JsonParser
+import models.SunInfo
 import nl.komponents.kovenant.Promise
 import nl.komponents.kovenant.task
-import verticles.MainVerticle
 import java.nio.charset.Charset
+import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class SunService {
 
-    fun getSunInfo(lat: Double, lon: Double): Promise<MainVerticle.SunInfo, Exception> = task {
+    companion object {
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.of("Australia/Sydney"))
+    }
+
+    fun getSunInfo(lat: Double, lon: Double): Promise<SunInfo, Exception> = task {
         val sunIfoURL = "http://api.sunrise-sunset.org/json?lat=$lat&lng=$lon&formatted=0"
         val (_, response) = sunIfoURL.httpGet().responseString()
         val jsonStr = String(response.data, Charset.forName("UTF-8"))
@@ -24,6 +30,6 @@ class SunService {
         val sunriseTime = ZonedDateTime.parse(sunrise)
         val sunsetTime = ZonedDateTime.parse(sunset)
 
-        MainVerticle.SunInfo(sunriseTime.format(MainVerticle.formatter), sunsetTime.format(MainVerticle.formatter))
+        SunInfo(sunriseTime.format(SunService.formatter), sunsetTime.format(SunService.formatter))
     }
 }
