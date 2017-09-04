@@ -15,6 +15,7 @@ buildscript {
     ext.flyway_version = '4.2.0'
     ext.kotliquery_version = '1.1.4'
     ext.kotlintest_version = '2.0.5'
+    ext.logback_version = '1.2.3'
 
     repositories {
         jcenter()
@@ -53,6 +54,7 @@ dependencies {
     compile "org.flywaydb:flyway-core:$flyway_version"
     compile "com.github.seratch:kotliquery:$kotliquery_version"
     runtime "org.slf4j:slf4j-jdk14:$slf4j_version"
+    runtime "ch.qos.logback:logback-classic:$logback_version"
 }
 
 compileKotlin {
