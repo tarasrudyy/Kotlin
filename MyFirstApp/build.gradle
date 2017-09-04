@@ -52,7 +52,15 @@ mainClassName = 'io.vertx.core.Launcher'
 def mainVerticleName = 'verticles.MainVerticle'
 def watchForChange = 'src/**/*.kt'
 def doOnChange = 'gradle classes'
+def configurationFile = 'conf/development.json'
 
 run {
-    args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
+    args = [
+            'run',
+            mainVerticleName,
+            "--redeploy=$watchForChange",
+            "--launcher-class=$mainClassName",
+            "--on-redeploy=$doOnChange",
+            "-conf $configurationFile"
+    ]
 }

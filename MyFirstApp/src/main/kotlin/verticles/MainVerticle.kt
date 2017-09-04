@@ -21,6 +21,8 @@ class MainVerticle : AbstractVerticle() {
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneId.of("Australia/Sydney"))
     }
 
+    data class ServerConfig(val port: Int, val caching: Boolean)
+
     data class SunInfo(val sunrise: String, val sunset: String)
     data class SunWeatherInfo(val sunInfo: SunInfo, val temperature: Double)
 
@@ -33,9 +35,6 @@ class MainVerticle : AbstractVerticle() {
         val router = Router.router(vertx)
         val logger = LoggerFactory.getLogger("VertxServer")
         val templateEngine = ThymeleafTemplateEngine.create()
-
-        val staticHandler = StaticHandler.create().setWebRoot("public").setCachingEnabled(false)
-        router.route("/public/*").handler(staticHandler)
 
         val jsonMapper = jacksonObjectMapper()
 
@@ -58,7 +57,7 @@ class MainVerticle : AbstractVerticle() {
         }
 
         router.get("/home").handler { ctx ->
-            templateEngine.render(ctx, "public/templates/index.html", { buf ->
+            templateEngine.render(ctx, "public/templates/", "index.html", { buf ->
                 if (buf.failed()) {
                     logger.error("Template rendering failed", buf.cause())
                 } else {
@@ -68,9 +67,16 @@ class MainVerticle : AbstractVerticle() {
             })
         }
 
-        server.requestHandler { router.accept(it) }.listen(8080, { handler ->
+        val serverConfig = jsonMapper.readValue(config().getJsonObject("server").encode(), ServerConfig::class.java)
+        val serverPort = serverConfig.port
+        val enableCaching = serverConfig.caching
+
+        val staticHandler = StaticHandler.create().setWebRoot("public").setCachingEnabled(enableCaching)
+        router.route("/public/*").handler(staticHandler)
+
+        server.requestHandler { router.accept(it) }.listen(serverPort, { handler ->
             if (!handler.succeeded()) {
-                logger.error("Failed to listen on port 8080")
+                logger.error("Failed to listen on port $serverPort")
             }
         })
     }
