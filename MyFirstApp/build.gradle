@@ -9,6 +9,11 @@ buildscript {
     ext.fuel_version = '1.9.0'
     ext.kotson_version = '2.5.0'
     ext.jackson_version = '2.9.0'
+    ext.hikari_version = '2.6.1'
+    ext.pgjdbc_version = '42.1.4'
+    ext.jbcrypt_version = '0.4.1'
+    ext.flyway_version = '4.2.0'
+    ext.kotliquery_version = '1.1.4'
 
     repositories {
         jcenter()
@@ -41,6 +46,11 @@ dependencies {
     compile "io.vertx:vertx-web:$vertx_version"
     compile "io.vertx:vertx-web-templ-thymeleaf:$vertx_version"
     compile "uy.klutter:klutter-vertx3-jdk8:$klutter_version"
+    compile "com.zaxxer:HikariCP:$hikari_version"
+    compile "org.postgresql:postgresql:$pgjdbc_version"
+    compile "de.svenkubiak:jBCrypt:$jbcrypt_version"
+    compile "org.flywaydb:flyway-core:$flyway_version"
+    compile "com.github.seratch:kotliquery:$kotliquery_version"
 }
 
 compileKotlin {
