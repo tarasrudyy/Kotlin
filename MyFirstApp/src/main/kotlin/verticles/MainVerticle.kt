@@ -9,6 +9,8 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.*
 import io.vertx.ext.web.sstore.LocalSessionStore
 import io.vertx.ext.web.templ.ThymeleafTemplateEngine
+import models.DataSourceConfig
+import models.ServerConfig
 import models.SunInfo
 import models.SunWeatherInfo
 import nl.komponents.kovenant.functional.bind
@@ -21,9 +23,6 @@ import services.WeatherService
 import uy.klutter.vertx.VertxInit
 
 class MainVerticle : AbstractVerticle() {
-
-    data class ServerConfig(val port: Int, val caching: Boolean)
-    data class DataSourceConfig(val user: String, val password: String, val jdbcUrl: String)
 
     private val weatherService = WeatherService()
     private val sunService = SunService()
