@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch",
-    "build": "webpack"
+    "build": "webpack",
+    "prod": "webpack -p"
   },
   "author": "Taras Rudyi",
   "license": "ISC",
