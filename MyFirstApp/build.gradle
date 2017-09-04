@@ -14,6 +14,7 @@ buildscript {
     ext.jbcrypt_version = '0.4.1'
     ext.flyway_version = '4.2.0'
     ext.kotliquery_version = '1.1.4'
+    ext.kotlintest_version = '2.0.5'
 
     repositories {
         jcenter()
@@ -34,7 +35,7 @@ repositories {
 }
 
 dependencies {
-    runtime "org.slf4j:slf4j-jdk14:$slf4j_version"
+    testCompile "io.kotlintest:kotlintest:$kotlintest_version"
     compile "org.slf4j:slf4j-api:$slf4j_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.funktionale:funktionale-all:$functionale_version"
@@ -51,6 +52,7 @@ dependencies {
     compile "de.svenkubiak:jBCrypt:$jbcrypt_version"
     compile "org.flywaydb:flyway-core:$flyway_version"
     compile "com.github.seratch:kotliquery:$kotliquery_version"
+    runtime "org.slf4j:slf4j-jdk14:$slf4j_version"
 }
 
 compileKotlin {
