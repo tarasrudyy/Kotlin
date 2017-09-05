@@ -26,7 +26,7 @@
     <logger name="org.thymeleaf.TemplateEngine" level="INFO"/>
     <logger name="com.zaxxer.hikari.HikariConfig" level="INFO"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
     </root>

@@ -53,7 +53,7 @@ dependencies {
     compile "de.svenkubiak:jBCrypt:$jbcrypt_version"
     compile "org.flywaydb:flyway-core:$flyway_version"
     compile "com.github.seratch:kotliquery:$kotliquery_version"
-    runtime "org.slf4j:slf4j-jdk14:$slf4j_version"
+//    runtime "org.slf4j:slf4j-jdk14:$slf4j_version"
     runtime "ch.qos.logback:logback-classic:$logback_version"
 }
 

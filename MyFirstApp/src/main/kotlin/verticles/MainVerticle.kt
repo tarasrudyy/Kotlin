@@ -24,22 +24,33 @@ import uy.klutter.vertx.VertxInit
 
 class MainVerticle : AbstractVerticle() {
 
-    private val weatherService = WeatherService()
-    private val sunService = SunService()
-
+    private val logger = LoggerFactory.getLogger(this.javaClass.name)
     private var maybeDataSource: HikariDataSource? = null
 
-    override fun start(startFuture: Future<Void>?) {
-        val jsonMapper = jacksonObjectMapper()
+    private fun initDataSource(config: DataSourceConfig): HikariDataSource {
+        val hikariDS = HikariDataSource()
+        hikariDS.username = config.user
+        hikariDS.password = config.password
+        hikariDS.jdbcUrl = config.jdbcUrl
+        maybeDataSource = hikariDS
+        return hikariDS
+    }
 
+    override fun start(startFuture: Future<Void>?) {
+        logger.info("Starting the server")
         VertxInit.ensure()
         val server = vertx.createHttpServer()
         val router = Router.router(vertx)
-        val logger = LoggerFactory.getLogger("VertxServer")
+
         val templateEngine = ThymeleafTemplateEngine.create()
+
+        val jsonMapper = jacksonObjectMapper()
+        val weatherService = WeatherService()
+        val sunService = SunService()
 
         val dataSourceConfig = jsonMapper.readValue(config().getJsonObject("dataSource").encode(), DataSourceConfig::class.java)
         val dataSource = initDataSource(dataSourceConfig)
+
         val migrationService = MigrationService(dataSource)
         val migrationResult = migrationService.migrate()
         migrationResult.fold({ exc ->
@@ -115,14 +126,5 @@ class MainVerticle : AbstractVerticle() {
 
     override fun stop(stopFuture: Future<Void>?) {
         maybeDataSource?.close()
-    }
-
-    private fun initDataSource(config: DataSourceConfig): HikariDataSource {
-        val hikariDS = HikariDataSource()
-        hikariDS.username = config.user
-        hikariDS.password = config.password
-        hikariDS.jdbcUrl = config.jdbcUrl
-        maybeDataSource = hikariDS
-        return hikariDS
     }
 }
